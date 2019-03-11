@@ -8,7 +8,6 @@
            :response-format (ajax.core/json-response-format {:keywords? true})))
 
 (rf/reg-event-db :initialize (fn [db] {:page :dashboard
-                                       :countdown 10
                                        :nshow 5}))
 
 (rf/reg-event-db :new-data (fn [db [_ x]] (assoc db :data x)))

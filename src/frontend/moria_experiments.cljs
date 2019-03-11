@@ -1,3 +1,5 @@
+(ns frontend.moria-experiments)
+
 ;;(def at (atom {:hovno 5}))
 
 ;; (defn onklik [e]

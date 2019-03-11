@@ -31,7 +31,7 @@
   (rf/dispatch [:users-get])
   (rf/dispatch [:tasks-get])
   (rf/dispatch [:nshow-reset])
-  (rf/dispatch [:set-countdown 10])
+  (rf/dispatch [:set-countdown 60])
   (rf/dispatch [:go-to-page :user {:user-id id}]))
 
 (secretary/defroute tasks "/tasks" []
