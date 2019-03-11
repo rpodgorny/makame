@@ -1,0 +1,7 @@
+{:deps true
+ :dev-http {8000 "test_xxx_public"}
+ :builds
+ {:app {:target :browser
+        :output-dir "test_xxx_public/js"
+        :asset-path "/js"
+        :modules {:main {:entries [frontend.core]}}}}}
