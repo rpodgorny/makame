@@ -8,6 +8,8 @@
 
 (rf/reg-sub :countdown #(:countdown %))
 
+(rf/reg-sub :countdown-max #(:countdown-max %))
+
 (rf/reg-sub :users #(:users %))
 
 ;(rf/reg-sub :user-load (fn [db [_ user-id]] (-> db :user-load (get user-id))))

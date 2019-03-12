@@ -14,7 +14,11 @@
 
 (rf/reg-event-db :set-current-user (fn [db [_ x]] (assoc db :current-user x)))
 
-(rf/reg-event-db :set-countdown (fn [db [_ x]] (assoc db :countdown x)))
+(rf/reg-event-db :set-countdown (fn [db [_ x]] (assoc db :countdown x
+                                                         :countdown-max x)))
+
+(rf/reg-event-db :reset-countdown (fn [db [_ x]] (assoc db :countdown (:countdown-max db))))
+
 
 (rf/reg-event-db :go-to-page (fn [db [_ name props]] (assoc db :page name :page-props props)))
 

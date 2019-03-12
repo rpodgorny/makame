@@ -29,7 +29,14 @@
     [:div]))
 
 (defn countdown [props]
-  [:div (str "countdown: " @(rf/subscribe [:countdown]))])
+  (if-let [countdown @(rf/subscribe [:countdown])]
+    (let [countdown-max @(rf/subscribe [:countdown-max])]
+      [:div.level
+       [:progress.progress.is-small {:value countdown :max countdown-max}]
+       ;;(str "countdown: " countdown)
+       ;;" "
+       [:a {:on-click #(rf/dispatch [:set-countdown nil])}
+        [:i.fa.fa-times-circle.has-text-black]]])))
 
 (defn user-select-options [users]
   (cons [:option {:key ""} ""]
@@ -53,7 +60,9 @@
          [:select.input
           {:value @(rf/subscribe [:form task-id :worker])
            :class (when (empty? @(rf/subscribe [:form task-id :worker])) "is-danger")
-           :on-change #(rf/dispatch [:form-change task-id :worker (.-target.value %)])}
+           :on-change (fn [e]
+                        (rf/dispatch [:form-change task-id :worker (.-target.value e)])
+                        (rf/dispatch [:reset-countdown]))}
           (user-select-options @(rf/subscribe [:users]))]]]]]
      [:div.column.is-narrow
       [:div.field
@@ -62,7 +71,9 @@
         [:div.select
          [:select.input
           {:value @(rf/subscribe [:form task-id :mentor])
-           :on-change #(rf/dispatch [:form-change task-id :mentor (.-target.value %)])}
+           :on-change (fn [e]
+                        (rf/dispatch [:form-change task-id :mentor (.-target.value e)])
+                        (rf/dispatch [:reset-countdown]))}
           (user-select-options @(rf/subscribe [:users]))]]]]]
      [:div.column
       [:div.field
@@ -72,7 +83,9 @@
          {:type "text"
           :value @(rf/subscribe [:form task-id :text])
           :class (when (empty? @(rf/subscribe [:form task-id :text])) "is-danger")
-          :on-change #(rf/dispatch [:form-change task-id :text (.-target.value %)])}]]]]
+          :on-change (fn [e]
+                       (rf/dispatch [:form-change task-id :text (.-target.value e)])
+                       (rf/dispatch [:reset-countdown]))}]]]]
      [:div.column.is-narrow
       [:div.field
        [:label.label "Odhad"]
@@ -83,7 +96,9 @@
           :placeholder "1h"
           :value @(rf/subscribe [:form-interval task-id :estimate])
           :class (when-not @(rf/subscribe [:form task-id :estimate]) "is-danger")
-          :on-change #(rf/dispatch [:form-change-interval task-id :estimate (.-target.value %)])}]]]]
+          :on-change (fn [e]
+                       (rf/dispatch [:form-change-interval task-id :estimate (.-target.value e)])
+                       (rf/dispatch [:reset-countdown]))}]]]]
      [:div.column.is-narrow
       [:div.field
        [:label.label "Dedlajn"]
@@ -93,7 +108,9 @@
          {:type "date"
           :value @(rf/subscribe [:form-datetime task-id :deadline])
           :class (when-not @(rf/subscribe [:form task-id :deadline]) "is-danger")
-          :on-change #(rf/dispatch [:form-change-datetime task-id :deadline (.-target.value %)])}]]]]
+          :on-change (fn [e]
+                       (rf/dispatch [:form-change-datetime task-id :deadline (.-target.value e)])
+                       (rf/dispatch [:reset-countdown]))}]]]]
      (when-not is-simple
        [:div.column.is-narrow
         [:div.field
@@ -104,7 +121,9 @@
             :style {:width "70px"}
             :placeholder "1h"
             :value @(rf/subscribe [:form-interval task-id :duration])
-            :on-change #(rf/dispatch [:form-change-interval task-id :duration (.-target.value %)])}]]]])
+            :on-change (fn [e]
+                         (rf/dispatch [:form-change-interval task-id :duration (.-target.value e)])
+                         (rf/dispatch [:reset-countdown]))}]]]])
      (when-not is-simple
        [:div.column.is-narrow
         [:div.field
@@ -114,20 +133,28 @@
           [:input.input
            {:type "date"
             :value @(rf/subscribe [:form-datetime task-id :finished_at])
-            :on-change #(rf/dispatch [:form-change-datetime task-id :finished_at (.-target.value %)])}]
+            :on-change (fn [e]
+                         (rf/dispatch [:form-change-datetime task-id :finished_at (.-target.value e)])
+                         (rf/dispatch [:reset-countdown]))}]
           [:input.input
            {:type "time"
             :value @(rf/subscribe [:form-datetime task-id :finished_at])
-            :on-change #(rf/dispatch [:form-change-datetime task-id :finished_at (.-target.value %)])}]]]])
+            :on-change (fn [e]
+                         (rf/dispatch [:form-change-datetime task-id :finished_at (.-target.value e)])
+                         (rf/dispatch [:reset-countdown]))}]]]])
      [:div.column.is-narrow
       [:div.field.is-grouped
        [:div.control
         [:button.button.is-link
          {:disabled @(rf/subscribe [:form-is-error task-id])
-          :on-click #(rf/dispatch [:form-save (u/form->task @(rf/subscribe [:formxx task-id]))])}
+          :on-click (fn [e]
+                      (rf/dispatch [:form-save (u/form->task @(rf/subscribe [:formxx task-id]))])
+                      (rf/dispatch [:reset-countdown]))}
          "Ulozit"]]
        [:div.control
-        [:button.button.is-test {:on-click #(rf/dispatch [:form-reset task-id])}
+        [:button.button.is-test {:on-click (fn [e]
+                                             (rf/dispatch [:form-reset task-id])
+                                             (rf/dispatch [:reset-countdown]))}
          "Zrusit"]]]]]))
 
 (defn task-form-vert [props]
@@ -399,7 +426,7 @@
      [loads {:load load}]]))
 
 (defn navbar []
-  [:nav.navbar {:role "navigation"}
+  [:nav.navbar.is-primary {:role "navigation"}
    [:div.navbar-menu
     [:div.navbar-start
      [:a.navbar-item {:href (routes/dashboard)} "dashboard"]
@@ -409,7 +436,6 @@
 
 (defn page-user [props]
   [:div
-   [countdown]
    [:div.section
     [neco-jako-karta {:user-id (:user-id props)}]]
    [:div.section
@@ -484,6 +510,7 @@
   [:div
    [modal-modal]
    [navbar]
+   [countdown]
    (let [page @(rf/subscribe [:page])
          page-props @(rf/subscribe [:page-props])]
      (case page
